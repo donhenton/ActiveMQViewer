@@ -460,25 +460,35 @@ public class ActiveMQJmxComm {
 
     }
 
+    /**
+     * get the body of a message only text messages supported if a message isn't
+     * found, then the getTextMessage returns null
+     *
+     * @param messageId
+     * @param queueName
+     * @return the text of the message or a note about the message type
+     */
     public String getMessageText(String messageId, String queueName) {
-        String messageContents = "";
+        String messageContents = "No message found";
 
         Connection conn = null;
-         String messageType =  null;
+        String messageType = null;
         try {
             ActiveMQQueue sampleQueue = new ActiveMQQueue(queueName);
             Session queueSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             String filter = "JMSMessageID = '" + messageId + "'";
             QueueBrowser b = queueSession.createBrowser(sampleQueue, filter);
-            Object oo =  b.getEnumeration().nextElement();
+            Object oo = b.getEnumeration().nextElement();
             messageType = oo.getClass().getName();
-            ActiveMQTextMessage mm = (ActiveMQTextMessage) oo;
-            messageContents = mm.getText();
+            if (oo != null) {
+                ActiveMQTextMessage mm = (ActiveMQTextMessage) oo;
+                messageContents = mm.getText();
+            }
         } catch (JMSException ex) {
             logger.error("Jms problem getMessageText " + ex.getMessage());
-        }    catch (ClassCastException ex) {
-            logger.error("Trying to cast "+messageType +" to TextMessage");
-            messageContents = "Message is of type "+ messageType+ " only text messages can be processed.";
+        } catch (ClassCastException ex) {
+            logger.error("Trying to cast " + messageType + " to TextMessage");
+            messageContents = "Message is of type " + messageType + " only text messages can be processed.";
         } finally {
             try {
                 conn.stop();
@@ -548,7 +558,11 @@ public class ActiveMQJmxComm {
                 String filter = "JMSMessageID = '" + mId + "'";
                 QueueBrowser b = queueSession.createBrowser(sampleQueue, filter);
                 ActiveMQTextMessage oo = (ActiveMQTextMessage) b.getEnumeration().nextElement();
-                logger.debug("text " + oo.getText());
+                if (oo != null) {
+                    logger.debug("text " + oo.getText());
+                } else {
+                    logger.debug("text message null");
+                }
             } catch (JMSException ex) {
                 logger.error("Jms problem " + ex.getMessage());
             } finally {

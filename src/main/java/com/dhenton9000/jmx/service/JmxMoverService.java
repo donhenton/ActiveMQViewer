@@ -66,4 +66,6 @@ public interface JmxMoverService {
 
     public HashMap<String, String> getUserProperties(String selectedQueue, String selectedMessageId);
     
+    
+    public String getMessageText(String messageId, String queueName);
 }

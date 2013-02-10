@@ -220,4 +220,9 @@ public class JmxMoverServiceImpl implements JmxMoverService {
         }
         return props;
     }
+
+    public String getMessageText(String messageId, String queueName) {
+         
+        return jmxComm.getMessageText(messageId,queueName);
+    }
 }
