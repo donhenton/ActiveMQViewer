@@ -15,10 +15,12 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.jms.Connection;
 import javax.jms.InvalidSelectorException;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
+import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.management.MBeanServerConnection;
@@ -35,6 +37,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +55,7 @@ public class ActiveMQJmxComm {
     //broker name is from the conf file of the activemq server
 
     private static final String ACTIVEMQ_BROKER_BEAN_NAME_TEMPLATE = "org.apache.activemq:BrokerName=%s,Type=Broker";
-    private static final String CONNECTION_TEMPLATE = "service:jmx:rmi:///jndi/rmi://%s:%s/jmxrmi";
+    private static final String JMX_CONNECTION_TEMPLATE = "service:jmx:rmi:///jndi/rmi://%s:%s/jmxrmi";
     private static final Logger logger = LoggerFactory.getLogger(ActiveMQJmxComm.class);
     private static final int MESSAGE_LIST_MAXIMUM = 250;
     private static final String PROPERTIES_TEXT_KEY = "PropertiesText";
@@ -64,6 +67,7 @@ public class ActiveMQJmxComm {
     private HashMap<String, QueueViewMBean> queueMap;
     private List<QueueViewMBean> queueList;
     private JMXConnector jmxcf = null;
+    private String openWireUrl;
 
     public enum QUEUE_PROPS {
 
@@ -95,9 +99,14 @@ public class ActiveMQJmxComm {
 
     public static void main(String[] args) {
         try {
-            
-            sendJunkMessages();
-            doJunkStuff();
+            ActiveMQJmxComm c = new ActiveMQJmxComm();
+            c.setBrokerName("ubuntu");
+            c.setServerName("localhost");
+            c.setServerPort(2011);
+            long t = c.getQueueCount("fred");
+            // c.sendJunkMessages();
+            c.doJunkStuff();
+
         } catch (Exception ex) {
             logger.error("main problem", ex);
         }
@@ -167,7 +176,7 @@ public class ActiveMQJmxComm {
         EnumMap<BASIC_MESSAGE_PROPS, String> props =
                 new EnumMap<BASIC_MESSAGE_PROPS, String>(BASIC_MESSAGE_PROPS.class);
         QueueViewMBean q = null;
-        logger.debug("q "+qName+" message "+messageID);
+        logger.debug("q " + qName + " message " + messageID);
         if (StringUtils.isEmpty(qName) || StringUtils.isEmpty(messageID)) {
             return props;
         }
@@ -180,7 +189,7 @@ public class ActiveMQJmxComm {
 
             CompositeDataSupport messageData =
                     (CompositeDataSupport) q.getMessage(messageID);
-           
+
 
             for (BASIC_MESSAGE_PROPS dataItem : BASIC_MESSAGE_PROPS.values()) {
                 if (dataItem != null) {
@@ -198,8 +207,7 @@ public class ActiveMQJmxComm {
         return props;
     }
 
-    
-     /**
+    /**
      * Get the User properties for a message
      *
      * @param qName
@@ -228,12 +236,11 @@ public class ActiveMQJmxComm {
             item = item.replaceAll("}", "");
             item = item.replaceAll("\\{", "");
             String[] items = item.split(",");
-            for (String t: items)
-            {
+            for (String t : items) {
                 String[] pair = t.split("=");
-                props.put(pair[0].trim(),pair[1].trim());
+                props.put(pair[0].trim(), pair[1].trim());
             }
-            
+
 
         } else {
             logger.warn("could not find queue '" + qName + "' in getUserProperties returning null");
@@ -242,12 +249,8 @@ public class ActiveMQJmxComm {
         return props;
     }
 
-    
-    
-    
-    
     /**
-     * get the list of queue Viewer Beans
+     * get the list of queue Viewer Beans and generally initalize stuff
      *
      * @return return the list
      * @throws MalformedURLException
@@ -273,7 +276,7 @@ public class ActiveMQJmxComm {
 
             }
 
-
+            openWireUrl = getBrokerViewBean().getOpenWireURL();
 
         }
 
@@ -321,7 +324,7 @@ public class ActiveMQJmxComm {
     public MBeanServerConnection getConnection() throws MalformedURLException, IOException {
         if (connection == null) {
             jmxcf = null;
-            JMXServiceURL url = new JMXServiceURL(getBrokerUrl());
+            JMXServiceURL url = new JMXServiceURL(getBrokerJmxUrl());
             jmxcf = JMXConnectorFactory.connect(url);
             connection = jmxcf.getMBeanServerConnection();
 
@@ -343,10 +346,10 @@ public class ActiveMQJmxComm {
     /**
      * @return the brokerUrl
      */
-    private String getBrokerUrl() {
+    private String getBrokerJmxUrl() {
 
 
-        return String.format(CONNECTION_TEMPLATE,
+        return String.format(JMX_CONNECTION_TEMPLATE,
                 getServerName(), getServerPort() + "");
     }
 
@@ -438,10 +441,59 @@ public class ActiveMQJmxComm {
 
     }
 
-    private static void sendJunkMessages() {
+    /**
+     * obtain the open wire url for browsing messages and initialize the
+     * connector if not already done
+     *
+     * @return the url for browsing messages
+     *
+     */
+    public String getOpenWireUrl() {
+        if (openWireUrl == null) {
+            try {
+                getQueueList();
+            } catch (Exception ex) {
+                logger.error("in getopen wire url " + ex.getClass().getName() + " " + ex.getMessage());
+            }
+        }
+        return openWireUrl;
+
+    }
+
+    public String getMessageText(String messageId, String queueName) {
+        String messageContents = "";
+
+        Connection conn = null;
+         String messageType =  null;
+        try {
+            ActiveMQQueue sampleQueue = new ActiveMQQueue(queueName);
+            Session queueSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            String filter = "JMSMessageID = '" + messageId + "'";
+            QueueBrowser b = queueSession.createBrowser(sampleQueue, filter);
+            Object oo =  b.getEnumeration().nextElement();
+            messageType = oo.getClass().getName();
+            ActiveMQTextMessage mm = (ActiveMQTextMessage) oo;
+            messageContents = mm.getText();
+        } catch (JMSException ex) {
+            logger.error("Jms problem getMessageText " + ex.getMessage());
+        }    catch (ClassCastException ex) {
+            logger.error("Trying to cast "+messageType +" to TextMessage");
+            messageContents = "Message is of type "+ messageType+ " only text messages can be processed.";
+        } finally {
+            try {
+                conn.stop();
+                conn.close();
+            } catch (JMSException ex) {
+            }
+        }
+
+        return messageContents;
+    }
+
+    private void sendJunkMessages() {
         Connection conn = null;
         try {
-            conn = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616").createConnection();
+            conn = new ActiveMQConnectionFactory(getOpenWireUrl()).createConnection();
             conn.start();
             ActiveMQQueue tomcatQueue = new ActiveMQQueue("fred");
             Session queueSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -470,28 +522,42 @@ public class ActiveMQJmxComm {
 
     }
 
-    private static void doJunkStuff() throws OpenDataException, IOException, InvalidSelectorException, MalformedObjectNameException {
-        ActiveMQJmxComm c = new ActiveMQJmxComm();
-        c.setBrokerName("ubuntu");
-        c.setServerName("localhost");
-        c.setServerPort(2011);
-        long t = c.getQueueCount("fred");
-        logger.debug("fred count " + t);
-        List<String> mIds = c.getMessageIDsForQueue("fred", null);
+    private void doJunkStuff() throws OpenDataException, IOException, InvalidSelectorException, MalformedObjectNameException {
+
+        //  logger.debug("fred count " + t);
+        Connection conn = null;
+        List<String> mIds = getMessageIDsForQueue("fred", null);
         if (mIds.size() > 0) {
-            String mId = mIds.get(0);
-            EnumMap<BASIC_MESSAGE_PROPS, String> props = c.getMessageProperties("fred", mId);
-            Set<BASIC_MESSAGE_PROPS> basicKeys = props.keySet();
-            for (BASIC_MESSAGE_PROPS j : basicKeys) {
-                logger.debug(j + " --> " + props.get(j));
+            try {
+                String mId = mIds.get(0);
+                EnumMap<BASIC_MESSAGE_PROPS, String> props = getMessageProperties("fred", mId);
+                Set<BASIC_MESSAGE_PROPS> basicKeys = props.keySet();
+                for (BASIC_MESSAGE_PROPS j : basicKeys) {
+                    logger.debug(j + " --> " + props.get(j));
+                }
+                HashMap<String, String> userMap = getUserProperties("fred", mId);
+
+                for (String k : userMap.keySet()) {
+                    logger.debug(k + " --> " + userMap.get(k));
+                }
+                //////
+                conn = new ActiveMQConnectionFactory(getOpenWireUrl()).createConnection();
+                conn.start();
+                ActiveMQQueue sampleQueue = new ActiveMQQueue("fred");
+                Session queueSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                String filter = "JMSMessageID = '" + mId + "'";
+                QueueBrowser b = queueSession.createBrowser(sampleQueue, filter);
+                ActiveMQTextMessage oo = (ActiveMQTextMessage) b.getEnumeration().nextElement();
+                logger.debug("text " + oo.getText());
+            } catch (JMSException ex) {
+                logger.error("Jms problem " + ex.getMessage());
+            } finally {
+                try {
+                    conn.stop();
+                    conn.close();
+                } catch (JMSException ex) {
+                }
             }
-            HashMap<String, String> userMap = c.getUserProperties("fred", mId);
-           
-            for (String k:userMap.keySet())
-            {
-                logger.debug(k + " --> " + userMap.get(k));
-            }
-             
 
         }
     }

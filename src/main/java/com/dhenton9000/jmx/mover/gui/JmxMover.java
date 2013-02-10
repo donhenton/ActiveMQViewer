@@ -101,7 +101,7 @@ public class JmxMover extends javax.swing.JFrame {
 
         jLabel3.setText("(from the server conf/activemq.xml jmx entry)");
 
-        jLabel4.setText("Port:");
+        jLabel4.setText("Jmx Port:");
 
         toggleConnect.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         toggleConnect.setText("Connect");
@@ -119,11 +119,11 @@ public class JmxMover extends javax.swing.JFrame {
                 .addGroup(serverInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(serverInfoPanelLayout.createSequentialGroup()
                         .addComponent(txtServerName)
-                        .addGap(64, 64, 64)
-                        .addComponent(txtServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)
-                        .addGap(146, 146, 146))
+                        .addGap(18, 18, 18)
+                        .addComponent(txtServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(189, 189, 189))
                     .addGroup(serverInfoPanelLayout.createSequentialGroup()
                         .addComponent(txtBrokerName, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -189,9 +189,7 @@ public class JmxMover extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(actionTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1175, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(serverInfoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(127, 127, 127)))
+                    .addComponent(serverInfoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

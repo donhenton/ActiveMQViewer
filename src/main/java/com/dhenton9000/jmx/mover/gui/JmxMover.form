@@ -70,10 +70,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="actionTabbedPane" pref="1175" max="32767" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Component id="serverInfoPanel" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="127" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="serverInfoPanel" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -149,11 +146,11 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="txtServerName" max="32767" attributes="0"/>
-                          <EmptySpace min="64" pref="64" max="-2" attributes="0"/>
-                          <Component id="txtServerPort" min="-2" pref="66" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="146" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                          <Component id="txtServerPort" min="-2" pref="66" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="189" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="txtBrokerName" min="-2" pref="201" max="-2" attributes="0"/>
@@ -215,7 +212,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Port:"/>
+            <Property name="text" type="java.lang.String" value="Jmx Port:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="lblConnected">
