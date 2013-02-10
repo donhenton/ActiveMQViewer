@@ -410,4 +410,8 @@ public class JmxMover extends javax.swing.JFrame {
             jButton.setText("CONNECT");
         }
     }
+
+    HashMap<String, String> getUserProperties(String selectedQueue, String selectedMessageId) {
+         return getJmxService().getUserProperties(selectedQueue, selectedMessageId);
+    }
 }

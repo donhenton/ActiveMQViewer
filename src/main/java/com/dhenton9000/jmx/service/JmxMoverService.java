@@ -63,5 +63,7 @@ public interface JmxMoverService {
      * @return message ids or an empty list if nothing found
      */
     public List<String> getQueueMessageIds(String qName);
+
+    public HashMap<String, String> getUserProperties(String selectedQueue, String selectedMessageId);
     
 }

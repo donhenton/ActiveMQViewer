@@ -52,6 +52,16 @@ public class JmxMoverServiceImpl implements JmxMoverService {
         jmxComm.setBrokerName(brokerName);
         jmxComm.setServerName(serverName);
         jmxComm.setServerPort(serverPort);
+        
+        if (StringUtils.isEmpty(brokerName) || StringUtils.isEmpty(serverName))
+        {
+            setSuccessful = false;
+            errorMessage = "Broker Name and Server Name cannot be empty.";
+            return errorMessage;
+            
+        }
+        
+        
         // attempt to get the queueList
         try {
             jmxComm.getQueueList();
@@ -128,7 +138,7 @@ public class JmxMoverServiceImpl implements JmxMoverService {
             } catch (Exception ex) {
                 errorMessage = "Error class: " + ex.getClass().getName() + "\n";
                 errorMessage += "Message: " + ex.getMessage() + "\n";
-                logger.error("In getQueueCount " + errorMessage);
+                logger.error("In getQueueProperties " + errorMessage);
                 props = null;
 
             }
@@ -188,12 +198,26 @@ public class JmxMoverServiceImpl implements JmxMoverService {
             } catch (Exception ex) {
                 errorMessage = "Error class: " + ex.getClass().getName() + "\n";
                 errorMessage += "Message: " + ex.getMessage() + "\n";
-                logger.error("In getQueueCount " + errorMessage);
+                logger.error("In getQueueMessageIds " + errorMessage);
             }
 
 
         }// end if setSuccessful
 
         return idList;
+    }
+
+    public HashMap<String, String> getUserProperties(String qName, String messageId) {
+       
+        HashMap<String, String> props = new HashMap<String, String>();
+        String errorMessage = "";
+        try {
+            return  jmxComm.getUserProperties(qName, messageId);
+        } catch (OpenDataException ex) {
+           errorMessage = "Error class: " + ex.getClass().getName() + "\n";
+                errorMessage += "Message: " + ex.getMessage() + "\n";
+                logger.error("In getUserProperties " + errorMessage);
+        }
+        return props;
     }
 }

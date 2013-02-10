@@ -45,7 +45,13 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
 
                 JComboBox b = (JComboBox) e.getSource();
                 setSelectedQueue((String) b.getModel().getSelectedItem());
+                setSelectedMessageId(null);
+                 java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
                 refreshMessageIds();
+                
+            }
+        });
 
             }
         });
@@ -73,6 +79,8 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
         tabMessageProperties = new javax.swing.JTabbedPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblMessageProperties = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblUserProperties = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         btnRefreshMessageProps = new javax.swing.JButton();
 
@@ -108,6 +116,20 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
 
         tabMessageProperties.addTab("Basic", jScrollPane1);
 
+        tblUserProperties.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        tblUserProperties.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tblUserProperties);
+        tblUserProperties.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        tabMessageProperties.addTab("User", jScrollPane2);
+
         jLabel3.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel3.setText("Message Properties:");
 
@@ -135,7 +157,7 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(scrollPaneForMessageIds, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE))
+                            .addComponent(scrollPaneForMessageIds, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -164,8 +186,15 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
 
     private void btnRefreshMessagePropsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshMessagePropsActionPerformed
         setSelectedMessageId(null);
-        refreshMessageIds();
-        refreshMessageProperties();
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                refreshMessageIds();
+             //   refreshMessageProperties();
+
+            }
+        });
+
     }//GEN-LAST:event_btnRefreshMessagePropsActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRefreshMessageProps;
@@ -174,10 +203,12 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane scrollPaneForMessageIds;
     private javax.swing.JTabbedPane tabMessageProperties;
     private javax.swing.JTable tblMessageIds;
     private javax.swing.JTable tblMessageProperties;
+    private javax.swing.JTable tblUserProperties;
     // End of variables declaration//GEN-END:variables
 
     public void clear() {
@@ -192,6 +223,9 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
         tblMessageIds.setSelectionModel(getNewSelectionModel());
         TableModel tModel2 = new NotEditableTableModel();
         tblMessageProperties.setModel(tModel2);
+        TableModel tModel3 = new NotEditableTableModel();
+        tblUserProperties.setModel(tModel3);
+
         this.invalidate();
     }
 
@@ -300,8 +334,12 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
         logger.debug("refresh Message Properties called " + getSelectedMessageId());
 
         NotEditableTableModel tModel = new NotEditableTableModel();
+        NotEditableTableModel tModel2 = new NotEditableTableModel();
         HashMap<String, String> props =
                 this.getMoverParent().getMessageProperties(getSelectedQueue(), getSelectedMessageId());
+
+        HashMap<String, String> userProps =
+                this.getMoverParent().getUserProperties(getSelectedQueue(), getSelectedMessageId());
 
         if (props != null && props.keySet().size() > 0) {
             ArrayList<String> valueArray = new ArrayList<String>();
@@ -316,7 +354,7 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
             }
             tModel.addColumn("Value", valueArray.toArray());
 
-            
+
             this.tblMessageProperties.setModel(tModel);
             tblMessageProperties.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
             if (tblMessageProperties.getColumnCount() == 2) {
@@ -325,11 +363,27 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
                 tblMessageProperties.getColumnModel().getColumn(1).setPreferredWidth(oSize);
                 tblMessageProperties.doLayout();
             }
+        } else {
+            this.tblMessageProperties.setModel(tModel);
         }
-        else
-        {
-              this.tblMessageProperties.setModel(tModel);
+
+        ////////////////////// user props ////////////////////////////////
+
+        if (userProps != null && userProps.keySet().size() > 0) {
+            ArrayList<String> valueArray = new ArrayList<String>();
+            ArrayList<String> nameArray = new ArrayList<String>();
+            for (String k : userProps.keySet()) {
+                nameArray.add(k.trim());
+            }
+
+            tModel2.addColumn("Property Key", nameArray.toArray());
+            for (String k : userProps.keySet()) {
+                valueArray.add(userProps.get(k));
+            }
+            tModel2.addColumn("Value", valueArray.toArray());
+
         }
+        this.tblUserProperties.setModel(tModel2);
 
 
 

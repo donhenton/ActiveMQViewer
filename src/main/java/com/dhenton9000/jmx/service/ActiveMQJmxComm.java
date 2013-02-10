@@ -163,10 +163,11 @@ public class ActiveMQJmxComm {
      */
     public EnumMap<BASIC_MESSAGE_PROPS, String> getMessageProperties(String qName, String messageID)
             throws OpenDataException {
+        logger.debug("starting getMessage Properties");
         EnumMap<BASIC_MESSAGE_PROPS, String> props =
                 new EnumMap<BASIC_MESSAGE_PROPS, String>(BASIC_MESSAGE_PROPS.class);
         QueueViewMBean q = null;
-
+        logger.debug("q "+qName+" message "+messageID);
         if (StringUtils.isEmpty(qName) || StringUtils.isEmpty(messageID)) {
             return props;
         }
@@ -179,14 +180,7 @@ public class ActiveMQJmxComm {
 
             CompositeDataSupport messageData =
                     (CompositeDataSupport) q.getMessage(messageID);
-           for(Object z : messageData.getCompositeType().keySet())
-           {
-               logger.debug("Key: "+z+" -- "+messageData.get(z.toString()));
-           }
-            
-            
            
-            
 
             for (BASIC_MESSAGE_PROPS dataItem : BASIC_MESSAGE_PROPS.values()) {
                 if (dataItem != null) {
