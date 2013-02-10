@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author dhenton
  */
-public class JmxMoverServiceImpl implements JmxMoverService {
+public class JmxBrokerServiceImpl implements JmxBrokerService {
 
-    private final Logger logger = LoggerFactory.getLogger(JmxMoverServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(JmxBrokerServiceImpl.class);
     private ActiveMQJmxComm jmxComm = null;
     private boolean setSuccessful = false;
 

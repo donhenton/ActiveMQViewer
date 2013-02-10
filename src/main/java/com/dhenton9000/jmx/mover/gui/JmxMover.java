@@ -4,8 +4,8 @@
  */
 package com.dhenton9000.jmx.mover.gui;
 
-import com.dhenton9000.jmx.service.JmxMoverService;
-import com.dhenton9000.jmx.service.JmxMoverServiceImpl;
+import com.dhenton9000.jmx.service.JmxBrokerService;
+import com.dhenton9000.jmx.service.JmxBrokerServiceImpl;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -34,7 +34,7 @@ public class JmxMover extends javax.swing.JFrame {
     /**
      * @return the jMover
      */
-    private JmxMoverService jmxService = new JmxMoverServiceImpl();
+    private JmxBrokerService jmxService = new JmxBrokerServiceImpl();
     private final Logger logger = LoggerFactory.getLogger(JmxMover.class);
 
     /**
@@ -299,7 +299,7 @@ public class JmxMover extends javax.swing.JFrame {
     /**
      * @return the jmxService
      */
-    public JmxMoverService getJmxService() {
+    public JmxBrokerService getJmxService() {
         return jmxService;
     }
 
@@ -337,7 +337,7 @@ public class JmxMover extends javax.swing.JFrame {
         String serverName = txtServerName.getText();
         String brokerName = txtBrokerName.getText();
         String serverPort = txtServerPort.getText();
-        jmxService = new JmxMoverServiceImpl();
+        jmxService = new JmxBrokerServiceImpl();
         boolean success = false;
         Integer port = null;
         try {

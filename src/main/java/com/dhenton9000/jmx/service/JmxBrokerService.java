@@ -8,10 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
+ * This is the interface for talking to the queues and broker
  * @author dhenton
  */
-public interface JmxMoverService {
+public interface JmxBrokerService {
     /**
      * get a string list of queue names
      * @return 
@@ -64,8 +64,19 @@ public interface JmxMoverService {
      */
     public List<String> getQueueMessageIds(String qName);
 
+    /**
+     * get properites for a message that are user generated, eg a long property
+     * @param selectedQueue
+     * @param selectedMessageId
+     * @return the user properties or empty and not null if none found
+     */
     public HashMap<String, String> getUserProperties(String selectedQueue, String selectedMessageId);
     
-    
+    /**
+     * get the message text body for the message
+     * @param messageId
+     * @param queueName
+     * @return the message text or an error message
+     */
     public String getMessageText(String messageId, String queueName);
 }
