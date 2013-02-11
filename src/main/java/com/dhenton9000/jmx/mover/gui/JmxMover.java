@@ -45,11 +45,16 @@ public class JmxMover extends javax.swing.JFrame {
         toggleConnect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                JToggleButton jButton = (JToggleButton) actionEvent.getSource();
-                // boolean selected = abstractButton.getModel().isSelected();
-                // System.out.println("Action - selected=" + selected + "\n");
-                // toggleButton1.setSelected(selected);
-                handleConnectionToggleButton(jButton);
+                final JToggleButton jButton = (JToggleButton) actionEvent.getSource();
+
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        handleConnectionToggleButton(jButton);
+
+                    }
+                });
+
+
             }
         });
     }
