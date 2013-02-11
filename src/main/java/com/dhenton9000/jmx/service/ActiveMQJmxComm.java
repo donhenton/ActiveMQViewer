@@ -238,7 +238,9 @@ public class ActiveMQJmxComm {
             String[] items = item.split(",");
             for (String t : items) {
                 String[] pair = t.split("=");
-                props.put(pair[0].trim(), pair[1].trim());
+                if (pair != null && pair.length == 2) {
+                    props.put(pair[0].trim(), pair[1].trim());
+                }
             }
 
 
@@ -468,19 +470,23 @@ public class ActiveMQJmxComm {
      * @param queueName
      * @return the text of the message or a note about the message type
      */
-    public String getMessageText(String messageId, String queueName) {
+    public String getMessageText(String queueName, String messageId) {
         String messageContents = "No message found";
 
         Connection conn = null;
         String messageType = null;
         try {
+            conn = new ActiveMQConnectionFactory(getOpenWireUrl()).createConnection();
+            conn.start();
+
             ActiveMQQueue sampleQueue = new ActiveMQQueue(queueName);
             Session queueSession = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             String filter = "JMSMessageID = '" + messageId + "'";
             QueueBrowser b = queueSession.createBrowser(sampleQueue, filter);
             Object oo = b.getEnumeration().nextElement();
-            messageType = oo.getClass().getName();
+            
             if (oo != null) {
+                messageType = oo.getClass().getName();
                 ActiveMQTextMessage mm = (ActiveMQTextMessage) oo;
                 messageContents = mm.getText();
             }

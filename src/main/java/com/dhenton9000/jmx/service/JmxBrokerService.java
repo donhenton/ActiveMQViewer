@@ -78,5 +78,5 @@ public interface JmxBrokerService {
      * @param queueName
      * @return the message text or an error message
      */
-    public String getMessageText(String messageId, String queueName);
+    public String getMessageText( String queueName,String messageId);
 }

@@ -375,14 +375,11 @@ public class JmxMover extends javax.swing.JFrame {
 
     private void performDisconnect() {
 
-        txtServerName.setText("");
-        txtBrokerName.setText("");
-        txtServerPort.setText("");
-
-
-
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                txtServerName.setText("");
+                txtBrokerName.setText("");
+                txtServerPort.setText("");
                 moverPanel.clear();
                 queuePropertiesPanel.clear();
                 messagePropertiesPanel.clear();
@@ -410,6 +407,10 @@ public class JmxMover extends javax.swing.JFrame {
     }
 
     HashMap<String, String> getUserProperties(String selectedQueue, String selectedMessageId) {
-         return getJmxService().getUserProperties(selectedQueue, selectedMessageId);
+        return getJmxService().getUserProperties(selectedQueue, selectedMessageId);
+    }
+
+    String getMessageText(String selectedQueue, String selectedMessageId) {
+        return getJmxService().getMessageText(selectedQueue, selectedMessageId);
     }
 }

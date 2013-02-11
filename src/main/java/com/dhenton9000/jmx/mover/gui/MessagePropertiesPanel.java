@@ -81,6 +81,8 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
         tblMessageProperties = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblUserProperties = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        edtMessageText = new javax.swing.JEditorPane();
         jLabel3 = new javax.swing.JLabel();
         btnRefreshMessageProps = new javax.swing.JButton();
 
@@ -130,6 +132,11 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
 
         tabMessageProperties.addTab("User", jScrollPane2);
 
+        edtMessageText.setEditable(false);
+        jScrollPane3.setViewportView(edtMessageText);
+
+        tabMessageProperties.addTab("Content", jScrollPane3);
+
         jLabel3.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel3.setText("Message Properties:");
 
@@ -157,7 +164,7 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(scrollPaneForMessageIds, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
+                            .addComponent(scrollPaneForMessageIds, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -199,11 +206,13 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRefreshMessageProps;
     private javax.swing.JComboBox cmboQueueName;
+    private javax.swing.JEditorPane edtMessageText;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane scrollPaneForMessageIds;
     private javax.swing.JTabbedPane tabMessageProperties;
     private javax.swing.JTable tblMessageIds;
@@ -225,7 +234,7 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
         tblMessageProperties.setModel(tModel2);
         TableModel tModel3 = new NotEditableTableModel();
         tblUserProperties.setModel(tModel3);
-
+        this.edtMessageText.setText("");
         this.invalidate();
     }
 
@@ -363,8 +372,18 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
                 tblMessageProperties.getColumnModel().getColumn(1).setPreferredWidth(oSize);
                 tblMessageProperties.doLayout();
             }
+            // message body
+            String body = this.getMoverParent().getMessageText(getSelectedQueue(), getSelectedMessageId());
+            if (body != null) {
+                this.edtMessageText.setText(body);
+            }
+            else {
+                this.edtMessageText.setText("");
+            }
+            
         } else {
             this.tblMessageProperties.setModel(tModel);
+            this.edtMessageText.setText("");
         }
 
         ////////////////////// user props ////////////////////////////////
@@ -384,6 +403,8 @@ public class MessagePropertiesPanel extends javax.swing.JPanel {
 
         }
         this.tblUserProperties.setModel(tModel2);
+        
+        
 
 
 

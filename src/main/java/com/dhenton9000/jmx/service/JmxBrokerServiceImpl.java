@@ -221,8 +221,8 @@ public class JmxBrokerServiceImpl implements JmxBrokerService {
         return props;
     }
 
-    public String getMessageText(String messageId, String queueName) {
+    public String getMessageText(String queueName,String messageId) {
          
-        return jmxComm.getMessageText(messageId,queueName);
+        return jmxComm.getMessageText(queueName,messageId);
     }
 }
